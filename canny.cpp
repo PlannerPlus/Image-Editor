@@ -95,14 +95,14 @@ class Find_Edge {
 		contrastnormalised = cn;
 	}
 	//计算边界并显示 
-	void showAnswer() {
+	void showAnswer(char *s) {
 		answer = cannyparam(grey, width, height, lowThreshold, highthreshold, 
 		          gaussiankernelradius, gaussiankernelwidth, contrastnormalised);
 		CImg<unsigned char> ResultImg(width, height, 1, 1, 0);
 		cimg_forXY(ResultImg, x, y) {
 			ResultImg(x, y) = answer[y * width + x];
 		}
-		ResultImg.save("canny.bmp");
+		ResultImg.save(s);
 	}
 };
 
@@ -483,11 +483,11 @@ static float Find_Edge::gaussian(float x, float sigma)
 */
 int main(int argc, char *argv[])
 {
-	if (argc != 2)
+	if (argc != 3)
 	{
-		printf("argc is not equal to 2\n");
+		printf("argc is not equal to 3\n");
 		return 0;	
 	}
 	Find_Edge Task2(argv[1]);
-	Task2.showAnswer();
+	Task2.showAnswer(argv[2]);
 }
