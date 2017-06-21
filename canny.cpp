@@ -52,7 +52,7 @@ class Find_Edge {
 	//把彩图变为灰度图像 
   	void change_grey() {
 		cimg_forXY(SrcImg, x, y) {
-			grey[y * width + x] = SrcImg(x, y ,0) / 3.0 + SrcImg(x, y, 1) / 3.0 + SrcImg(x, y, 2) / 3.0;
+			grey[y * width + x] = SrcImg(x, y ,0) * 0.299 + SrcImg(x, y, 1) * 0.587 + SrcImg(x, y, 2) * 0.114;
 		}
   	}
   public:
@@ -102,7 +102,7 @@ class Find_Edge {
 		cimg_forXY(ResultImg, x, y) {
 			ResultImg(x, y) = answer[y * width + x];
 		}
-		ResultImg.display();
+		ResultImg.save("canny.bmp");
 	}
 };
 
@@ -173,7 +173,7 @@ unsigned char *Find_Edge::cannyparam(unsigned char *grey, int width, int height,
 	performHysteresis(can, low, high);
 	for(i=0;i<width*height;i++)
 	{
-		answer[i] = can->idata[i] > 0 ? 1 : 0;
+		answer[i] = can->idata[i] > 0 ? 255 : 0;
 	}
 	killbuffers(can);
 	return answer;
@@ -189,7 +189,10 @@ static CANNY *Find_Edge::allocatebuffers(unsigned char *grey, int width, int hei
 
 	answer = malloc(sizeof(CANNY));
 	if(!answer)
-		goto error_exit;
+	{
+		killbuffers(answer);
+		return 0;
+	}
 	answer->data = malloc(width * height);
 	answer->idata = malloc(width * height * sizeof(int));
 	answer->magnitude = malloc(width * height * sizeof(int));
@@ -200,16 +203,16 @@ static CANNY *Find_Edge::allocatebuffers(unsigned char *grey, int width, int hei
 	if(!answer->data || !answer->idata || !answer->magnitude || 
 		!answer->xConv || !answer->yConv || 
 		!answer->xGradient || !answer->yGradient)
-		 goto error_exit;
+		{
+			killbuffers(answer);
+			return 0;
+		}
 
 	memcpy(answer->data, grey, width * height);
 	answer->width = width;
 	answer->height = height;
 
 	return answer;
-error_exit:
-	killbuffers(answer);
-	return 0;
 }
 
 /*
@@ -252,7 +255,11 @@ static int Find_Edge::computeGradients(CANNY *can, float kernelRadius, int kerne
 		kernel = malloc(kernelWidth * sizeof(float));
 		diffKernel = malloc(kernelWidth * sizeof(float));
 		if(!kernel || !diffKernel)
-			goto error_exit;
+		{
+			free(kernel);
+			free(diffKernel);
+			return -1;
+		}
 
 		/* initialise the Gaussian kernel */
 		for (kwidth = 0; kwidth < kernelWidth; kwidth++) 
@@ -385,10 +392,6 @@ static int Find_Edge::computeGradients(CANNY *can, float kernelRadius, int kerne
 		free(kernel);
 		free(diffKernel);
 		return 0;
-error_exit:
-		free(kernel);
-		free(diffKernel);
-		return -1;
 }
 	
 	/*
@@ -474,16 +477,17 @@ static float Find_Edge::gaussian(float x, float sigma)
 {
 	return (float) exp(-(x * x) / (2.0f * sigma * sigma));
 }
+/*
+  输入文件路径名
+  输出到当前目录下canny.bmp 
+*/
 int main(int argc, char *argv[])
 {
-	if (argc != 1)
+	if (argc != 2)
 	{
-		printf("argc is not equal to 1\n");
+		printf("argc is not equal to 2\n");
 		return 0;	
 	}
 	Find_Edge Task2(argv[1]);
-	Task2.setThreshold(1.0f, 10.0f);
-	Task2.showAnswer();
-	Task2.setThreshold(4.0f, 6.0f);
 	Task2.showAnswer();
 }
