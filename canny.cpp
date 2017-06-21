@@ -477,10 +477,6 @@ static float Find_Edge::gaussian(float x, float sigma)
 {
 	return (float) exp(-(x * x) / (2.0f * sigma * sigma));
 }
-/*
-  输入文件路径名
-  输出到当前目录下canny.bmp 
-*/
 int main(int argc, char *argv[])
 {
 	if (argc != 3)
