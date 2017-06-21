@@ -118,16 +118,11 @@ double sqr(double x)
 {
 	return x * x;
 }
-/*
-输入两个文件的路径
-结果保存到当前目录下
-color_mix.bmp 
-*/
 int main(int argc, char *argv[])
 {
-	if (argc != 3)
+	if (argc != 4)
 	{
-		printf("argc is not equal to 3!\n"); 
+		printf("argc is not equal to 4!\n"); 
 		return 0;
 	} 
 	CImg<double> SrcImg;
@@ -199,5 +194,5 @@ int main(int argc, char *argv[])
 		Vector3 rgb = LAB_to_RGB(lab);
 		resImg(x, y, 0) = rgb.v[0]; resImg(x, y, 1) = rgb.v[1]; resImg(x, y, 2) = rgb.v[2];
 	}
-	resImg.save("color_mix.bmp");
+	resImg.save(argv[3]);
 }
